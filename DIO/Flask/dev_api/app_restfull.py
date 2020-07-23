@@ -1,7 +1,10 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request
+from flask_restful import Resource, Api
 import json
+from habilidades import Habilidades
 
 app = Flask(__name__)
+api = Api(app)
 
 desenvolvedores = [
     {
@@ -14,10 +17,8 @@ desenvolvedores = [
     }
 ]
 
-## Devolve um desenvolvedor pelo ID.
-@app.route('/dev/<int:id>/', methods=['GET', 'PUT', 'DELETE'])
-def desenvolvedor(id):
-    if request.method == 'GET':
+class Desevolvedor(Resource):
+    def get(self, id):
         try:
             response = desenvolvedores[id]
         
@@ -29,33 +30,38 @@ def desenvolvedor(id):
             mensagem = 'Erro desconhecido. Procure o administrador da API'
             response = {'status':'erro', 'mensagem':mensagem}
 
-        return jsonify(response)
+        return response
 
-    
-    if request.method == 'PUT':
+    def put(self, id):
         dados = json.loads(request.data)
         desenvolvedores[id] = dados
-        return jsonify(dados)
+        
+        return dados
 
-    elif request.method == 'DELETE':
+    def delete(self, id):
         desenvolvedores.pop(id)
   
-        return jsonify({'status':'sucesso', 'mensagem':'Registro excluido'})
+        return {'status':'sucesso', 'mensagem':'Registro excluido'}
 
-## Lista todos os desenvolvedores e permite registrar um novo desenvolvedor 
-@app.route('/dev/', methods=['POST', 'GET'])
-def lista_desenvolvedores():
-    if request.method == 'POST':
+class ListaDesenvolvedores(Resource):
+    def get(self):
+        return desenvolvedores
+
+    def post(self):
         dados = json.loads(request.data)
         posicao = len(desenvolvedores)
         dados['id'] = posicao
         desenvolvedores.append(dados)
-        return jsonify(desenvolvedores[posicao])
+        return desenvolvedores[posicao]
 
-    elif request.method == 'GET':
-        return jsonify(desenvolvedores)
-         
+
+api.add_resource(Desevolvedor, '/dev/<int:id>/')
+api.add_resource(ListaDesenvolvedores, '/dev/')
+api.add_resource(Habilidades, '/habilidades/')
+
+
+
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
