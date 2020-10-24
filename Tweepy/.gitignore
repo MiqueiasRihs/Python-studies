@@ -1,2 +1,3 @@
+.vscode
 venv_tweepy
 /hello_tweepy/access_token.py
