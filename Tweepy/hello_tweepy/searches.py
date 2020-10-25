@@ -10,5 +10,5 @@ auth.set_access_token(tokens["ACCESS_TOKEN"], tokens["ACCESS_TOKEN_SECRET"])
 # Create API object
 api = tweepy.API(auth)
 
-# Create a tweet
-api.update_status("ah mano... eu já seilá")
+for tweet in api.search(q="Django", lang="pt", rpp=10):
+    print(f"{tweet.user.name}:{tweet.text}\n")
